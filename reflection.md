@@ -2,7 +2,54 @@
 
 ## 1. System Design
 
+Three core actions the user should be able to perform in the app are:
+check pet's medical records
+Make a grooming appointment
+Add preferenced veterinary
+
 **a. Initial design**
+
+main objects:
+owner:
+attributes:
+name(first and last)
+age
+methods:
+
+    pet:
+        attributes:
+            name
+            age
+            medication
+            health_status
+        methods:
+    vet:
+        attributes:
+            name
+            doctor
+            location
+            phone
+        methods:
+            prescribes
+            checkup
+    scheduler:
+        attributes:
+            date
+            calendar
+        methods:
+            check_calendar
+            make_appt
+            add_task
+    task:
+        attributes:
+            name
+            list_tasks
+            type
+            time_due
+            date_due
+        methods:
+            get_deadline
+            get_name
 
 - Briefly describe your initial UML design.
 - What classes did you include, and what responsibilities did you assign to each?
