@@ -9,55 +9,19 @@ Add preferenced veterinary
 
 **a. Initial design**
 
-main objects:
-owner:
-attributes:
-name(first and last)
-age
-methods:
-
-    pet:
-        attributes:
-            name
-            age
-            medication
-            health_status
-        methods:
-    vet:
-        attributes:
-            name
-            doctor
-            location
-            phone
-        methods:
-            prescribes
-            checkup
-    scheduler:
-        attributes:
-            date
-            calendar
-        methods:
-            check_calendar
-            make_appt
-            add_task
-    task:
-        attributes:
-            name
-            list_tasks
-            type
-            time_due
-            date_due
-        methods:
-            get_deadline
-            get_name
-
 - Briefly describe your initial UML design.
 - What classes did you include, and what responsibilities did you assign to each?
+
+For the initial design of the pet app, I have included the 4 main classes: Owner, Pet, Scheduler and Task.
+I also thought about adding a class for the owner's preferred vet. Each class does coherently connect with one another giving the primary lead to the owner class. The owner class has a pet and uses the scheduler class to check any current tasks or appointments that are recorded within a calendar. The scheduler class has the ability to manage and create future tasks that the user or owner would like to request for their pet. The pet class and the owner class have basic information such as name and age, however the pet class has more attributes related to health status and medications.
+
+The vet class has attributes regarding the veterinary contact information(name, location, phone number and doctor), where some of the behaviors of this class is to provide prescriptions or checkups when necessary.
 
 **b. Design changes**
 
 - Did your design change during implementation?
 - If yes, describe at least one change and why you made it.
+  Yes, the design did change when prompting the AI agent if there was any potential bottlenecks. Claude created clear relationships between objects/classes.
 
 ---
 
