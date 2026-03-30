@@ -45,3 +45,33 @@ pip install -r requirements.txt
 ### Smarter Scheduling
 
 Allows user to program tasks and reminders at their convenience as they carry their responsibility as pet owners. The app filters schedules by individual pet or completion status, and also detects potential time-slot conflicts across multiple pets without the instant multiple tasks are booked for the exact same time. User also promptly receives organized to-do tasks with meeting due dates and priortization.
+
+### Testing PawPal+
+**System Reliability:** ⭐⭐⭐⭐ (4/5 Stars)
+
+Behaviors to verify:
+
+- calendar creation when no calendar is passed into the scheduler class
+- Processing existing calendar when passed to scheduler`
+- verify what is returned when there is no owner record (instance) passed to scheduler
+- Revise if all tasks are sorted by priority and date
+
+#### Test Suite Overview (`test_pawpal.py`)
+
+The test_pawpal file ensures the core scheduling logic works smoothly for the pet owner. It contains detailed tests that target potential edge-cases:
+
+- **Task Updates:** Checks that when you mark a task as "complete," the app actually remembers it's done.
+- **Recurring Chores:** Confirms that when you finish a daily or weekly task (like feeding or walking), the app automatically creates the _next_ occurrence for the correct future date
+- **Pet Links:** Makes sure that when you assign a task to a pet object, that specific pet's personal to-do list is counted correctly.
+- **Organizing the Day:** Verifies that when the app builds your daily schedule, it puts the most important (high-priority) tasks at the top, and then organizes the rest chronologically by time. It also ensures tasks from yesterday or tomorrow don't accidentally overlap with "today's" view.
+- **Conflict Warnings:** Tests the system's ability to warn you if you accidentally schedule two different tasks for two different pets at the exact same time
+- **Safe Defaults:** Ensures the app doesn't crash in weird situations, such as when a task doesn't have an assigned priority, when starting a brand new empty calendar, or when viewing a schedule that hasn't been linked to a specific user yet.
+
+To test and verify behavior of application features, run the following command:
+
+```bash
+python -m pytest
+```
+
+
+

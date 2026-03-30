@@ -178,14 +178,21 @@ class Scheduler:
         self.calendar = calendar if calendar is not None else []
 
     def check_calendar(self):
-        """
-        Retrieves all tasks for the scheduled date, sorting them by priority (high > medium > low)
-        and then chronologically by time. If an owner is attached, retrieves and flattens
-        tasks from all of the owner's pets. If no owner is attached, relies on the `calendar` list.
+        '''Retrieves all tasks scheduled for a specific date, organized by priority and time.
 
+        This method handles two scenarios:
+        1. If no owner is attached: Returns tasks from the calendar list sorted by date and time.
+        2. If an owner is attached: Collects all tasks from all of the owner's pets that match 
+            the scheduled date, then sorts them by priority level (high > medium > low) and 
+            chronologically by time.
+
+             list: A sorted list of Task objects scheduled for `self.date`. When an owner exists,
+                     tasks are sorted first by priority (using PRIORITY_ORDER), then by time_due.
+                     When no owner exists, tasks are sorted by date_due and time_due.
+      
         Returns:
             list: A sorted list of Task objects scheduled for `self.date`.
-        """
+        '''
         if self.owner is None:
             return sorted(self.calendar, key=lambda task: (task.date_due, task.time_due))
 
