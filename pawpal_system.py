@@ -1,5 +1,6 @@
+from copy import copy
 from dataclasses import dataclass
-from datetime import date, time
+from datetime import date, time, timedelta
 
 
 class Owner:
@@ -169,6 +170,8 @@ class Scheduler:
         calendar (list): A list of tasks if no owner is provided.
     """
 
+    PRIORITY_ORDER = {"high": 0, "medium": 1, "low": 2}
+
     def __init__(self, date, owner=None, calendar=None):
         self.date = date
         self.owner = owner
@@ -176,27 +179,78 @@ class Scheduler:
 
     def check_calendar(self):
         """
-        Retrieves all tasks for the given date sorted by their due time.
-        If an owner is attached, retrieves and flattens tasks from all of the owner's pets.
-        If no owner is attached, relies on the `calendar` list.
+        Retrieves all tasks for the scheduled date, sorting them by priority (high > medium > low)
+        and then chronologically by time. If an owner is attached, retrieves and flattens
+        tasks from all of the owner's pets. If no owner is attached, relies on the `calendar` list.
 
         Returns:
-            list: A chronological list of Task objects scheduled for `self.date`.
+            list: A sorted list of Task objects scheduled for `self.date`.
         """
         if self.owner is None:
             return sorted(self.calendar, key=lambda task: (task.date_due, task.time_due))
 
-        all_tasks = []
-        for pet in self.owner.pets:
-            for task in pet.tasks:
-                if task.pet is None:
-                    task.pet = pet
-                all_tasks.append(task)
+        all_tasks = [
+            task for pet in self.owner.pets
+            for task in pet.tasks
+            if task.date_due == self.date
+        ]
 
         return sorted(
-            [task for task in all_tasks if task.date_due == self.date],
-            key=lambda task: task.time_due,
+            all_tasks,
+            key=lambda task: (self.PRIORITY_ORDER.get(task.priority, 1), task.time_due),
         )
+
+    def filter_tasks(self, pet_name=None, completion_status=None):
+        """
+        Filters today's scheduled tasks by pet name and/or completion status.
+
+        Args:
+            pet_name (str, optional): Only return tasks belonging to this pet.
+            completion_status (bool, optional): True for completed, False for incomplete.
+
+        Returns:
+            list: Filtered list of Task objects from today's schedule, sorted by time due.
+        """
+        tasks = self.check_calendar()
+        if pet_name is not None:
+            tasks = [t for t in tasks if t.pet and t.pet.name.lower() == pet_name.lower()]
+        if completion_status is not None:
+            tasks = [t for t in tasks if t.completion_status == completion_status]
+        return sorted(tasks, key=lambda t: t.time_due)
+
+    def detect_conflicts(self):
+        """
+        Detects tasks scheduled at the exact same time across all pets in the owner's schedule.
+
+        Groups tasks by their `time_due` and identifies any timeslot that has more than one task.
+        If an error occurs while fetching the schedule, it traps the exception and returns
+        a warning message rather than crashing.
+
+        Returns:
+            list of str: A list of warning messages detailing the conflicts (e.g.,
+            "Warning: conflict at 08:00:00 — Mochi: Morning walk | Yeontan: Give Meds").
+            If no conflicts exist, returns ["No conflicts found."].
+        """
+        try:
+            tasks = self.check_calendar()
+        except Exception as e:
+            return [f"Warning: could not load schedule — {e}"]
+
+        time_groups = {}
+        for task in tasks:
+            time_groups.setdefault(task.time_due, []).append(task)
+
+        warnings = []
+        for slot_time, group in time_groups.items():
+            if len(group) < 2:
+                continue
+            labels = []
+            for t in group:
+                pet_name = t.pet.name if t.pet else "Unknown pet"
+                labels.append(f"{pet_name}: {t.description}")
+            warnings.append(f"Warning: conflict at {slot_time} — {' | '.join(labels)}")
+
+        return warnings if warnings else ["No conflicts found."]
 
     def make_appt(self, pet, vet, task):
         """
@@ -237,6 +291,7 @@ class Task:
     frequency: str
     completion_status: bool
     date_due: date
+    priority: str = "medium"
     pet: object = None
 
     def get_deadline(self):
@@ -245,14 +300,20 @@ class Task:
         """
         pass
 
-    def get_name(self):
-        """
-        Retrieves the name or description of the task.
-        """
-        pass
 
     def mark_complete(self):
         """
-        Marks the task as completed by setting its status to True.
+        Marks the task as completed and schedules the next occurrence
+        for daily (tomorrow) or weekly (7 days) recurring tasks.
+        The new task is automatically added to the pet's task list.
         """
         self.completion_status = True
+
+        intervals = {"daily": timedelta(days=1), "weekly": timedelta(weeks=1)}
+        delta = intervals.get(self.frequency)
+
+        if delta and self.pet is not None:
+            next_task = copy(self)
+            next_task.date_due = self.date_due + delta
+            next_task.completion_status = False
+            self.pet.tasks.append(next_task)

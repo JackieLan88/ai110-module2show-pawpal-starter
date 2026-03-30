@@ -37,6 +37,9 @@ The vet class has attributes regarding the veterinary contact information(name, 
 - Describe one tradeoff your scheduler makes.
 - Why is that tradeoff reasonable for this scenario?
 
+Scheduler only provided an output of tasks for one pet when assigning similar tasks to the other pets of an owner. Since tasks are objects, trying to avoid recurrent tasks also neglected the fact of assigning similar tasks to other pets.
+A better approach was to refactor the scheduler methods to handle multiple pets simultaneously, creating separate task instances for each pet rather than relying on a single task object. This would enable proper assignment of recurring tasks across all pets while maintaining independent task states.
+
 ---
 
 ## 3. AI Collaboration
