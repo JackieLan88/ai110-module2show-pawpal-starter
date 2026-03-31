@@ -270,14 +270,6 @@ class Scheduler:
         """
         pass
 
-    def add_task(self, task):
-        """
-        Adds a single task directly to the scheduler.
-
-        Args:
-            task (Task): The task to be added.
-        """
-        pass
 
 
 @dataclass

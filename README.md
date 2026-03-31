@@ -22,6 +22,47 @@ Your final app should:
 - Display the plan clearly (and ideally explain the reasoning)
 - Include tests for the most important scheduling behaviors
 
+## Features
+
+### Owner & Pet Management
+
+- Add an owner with a name, and register multiple pets (name, species, age) under that owner
+- Remove pets from an owner's roster with automatic cleanup of bidirectional references
+
+### Task Creation & Assignment
+
+- Create care tasks with a description, due date, due time, priority (high / medium / low), and frequency (daily / weekly / monthly)
+- Assign tasks to a specific pet; the task and pet maintain linked references to each other
+
+### Priority-Based Schedule Sorting
+
+- When generating a daily schedule, tasks are sorted first by priority (`high → medium → low`) and then chronologically by time within each priority tier
+- Unrecognized priority values fall back to medium so the schedule never crashes
+
+### Conflict Detection
+
+- After sorting, the scheduler groups tasks by their exact `time_due`
+- Any time slot shared by two or more tasks triggers a human-readable warning: `"Warning: conflict at {time} — {pet}: {task} | {pet}: {task}"`
+- Surfaces all conflicts at once so the owner can reschedule before the day starts
+
+### Daily & Weekly Recurrence
+
+- Marking a task complete automatically creates the next occurrence: +1 day for `"daily"` tasks, +7 days for `"weekly"` tasks
+- The follow-up task is a copy of the original with `completion_status` reset to `False` and `date_due` advanced by the correct interval
+- Tasks with no assigned pet or an unsupported frequency (e.g., `"monthly"`) are completed without generating a duplicate
+
+### Filtering
+
+- Filter the schedule by pet name (case-insensitive) to see only one pet's tasks
+- Filter by completion status to see outstanding or finished tasks
+- Both filters can be combined; results are sorted by `time_due`
+
+### Streamlit UI
+
+- Live form for adding pets and tasks with immediate table feedback
+- "Generate Schedule" button renders the full sorted schedule and displays any conflict warnings inline
+- Session state keeps owner and pet data alive across UI interactions within a session
+
 ## Getting started
 
 ### Setup
@@ -47,6 +88,7 @@ pip install -r requirements.txt
 Allows user to program tasks and reminders at their convenience as they carry their responsibility as pet owners. The app filters schedules by individual pet or completion status, and also detects potential time-slot conflicts across multiple pets without the instant multiple tasks are booked for the exact same time. User also promptly receives organized to-do tasks with meeting due dates and priortization.
 
 ### Testing PawPal+
+
 **System Reliability:** ⭐⭐⭐⭐ (4/5 Stars)
 
 Behaviors to verify:
@@ -73,5 +115,6 @@ To test and verify behavior of application features, run the following command:
 python -m pytest
 ```
 
+## 📸 Demo
 
-
+<a href="image.png" target="_blank"><img src="image.png" title="PawPal App" alt="PawPal App" /></a>
